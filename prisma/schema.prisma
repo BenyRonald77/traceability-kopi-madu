@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Farmer {
+  id      Int     @id @default(autoincrement())
+  nama    String
+  lokasi  String  @default("")
+  telepon String  @default("")
+  jenis   String  // PETANI_KOPI | PETERNAK_LEBAH
+  catatan String  @default("")
+  lots    Lot[]
+}
+
+model Product {
+  id        Int     @id @default(autoincrement())
+  nama      String
+  jenis     String  // KOPI | MADU
+  varian    String  @default("")
+  deskripsi String  @default("")
+  lots      Lot[]
+}
+
+model Lot {
+  id              Int     @id @default(autoincrement())
+  kodeLot         String  @unique
+  produkId        Int
+  produk          Product @relation(fields: [produkId], references: [id])
+  petaniId        Int
+  petani          Farmer  @relation(fields: [petaniId], references: [id])
+  tanggalProduksi String
+  jumlah          Float
+  satuan          String
+  tahapCount      Int     @default(0)
+  createdAt       String  @default("")
+  stages          Stage[]
+}
+
+model Stage {
+  id            Int    @id @default(autoincrement())
+  lotId         Int
+  lot           Lot    @relation(fields: [lotId], references: [id], onDelete: Cascade)
+  tahap         String // PANEN | PENGOLAHAN | PENGEMASAN | PENGIRIMAN
+  urutan        Int
+  tanggal       String
+  lokasi        String @default("")
+  pelaku        String @default("")
+  catatan       String @default("")
+  dataPendukung String @default("{}")
+  prevHash      String
+  hash          String
+
+  @@unique([lotId, urutan])
+}
